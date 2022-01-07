@@ -17,9 +17,10 @@ router.post('/', async (req, res)=>{
 
     const newUser=new User(_.pick(req.body, ['name', 'email', 'password']))
     newUser.password=await bcrypt.hash(newUser.password, 10);
-    // console.log(newUser);
+    console.log(newUser);
     await newUser.save();
     const token=newUser.generateAuthToken();
+    console.log(token);
     res.header('x-auth-token', token).send(_.pick(newUser, ['_id', 'name', 'email']));
 })
 

@@ -1,0 +1,4 @@
+{
+    "jwtKey": "notes_vault_jwtKey",
+    "PORT": "notes_vault_port"
+}

@@ -2,6 +2,7 @@ const express=require('express');
 const Joi = require('joi');
 const {auth}=require('../middleware/auth')
 const {User}=require('../model/user')
+const validateId=require('../middleware/validateObjId')
 const router=express.Router();
 
 router.get('/', auth, async (req, res)=>{
@@ -14,10 +15,12 @@ router.post('/add', auth, async (req, res)=>{
     const note=req.body;
     const error=validateNote(note);
     if(error) return res.status(400).send(error.details[0].message)
-    const result=await User.updateOne({_id: req.user._id}, {
+    const result=await User.findOneAndUpdate({_id: req.user._id}, {
         $push: {notes: note}
-    })
-    if(result.modifiedCount>0) return res.send('added successfully')
+    },
+    {new: true})
+    const addedNote=result.notes[result.notes.length-1]
+    if(result) return res.send(addedNote)
     return res.status(404).send('user not available')
     // const user=await User.findOne({_id: req.user._id})
     // if(!user) return res.status(404).send("invalid user.")
@@ -27,24 +30,19 @@ router.post('/add', auth, async (req, res)=>{
     // res.send(user.notes[user.notes.length-1]);     // send the last element
 })
 
-router.put('/edit/:id', auth, async (req, res)=>{
+router.put('/edit/:id', [auth, validateId], async (req, res)=>{
     const note=req.body;
     const error=validateNote(note);
     if(error) return res.status(400).send(error.details[0].message)
-    try{        // to handle invalid ids . so that server does not crash
-        const result=await User.updateOne({_id: req.user._id, "notes._id": req.params.id}, {
-            $set:{
-                "notes.$.title": note.title,
-                "notes.$.text": note.text
-            }
-        })
-        if(result.modifiedCount>0) return res.send('updated successfully')
-        return res.status(404).send('note not available')
-    }
-    catch(ex){
-        return res.status(400).send('invalid id')
-    }
-
+       // to handle invalid ids . so that server does not crash
+    const result=await User.updateOne({_id: req.user._id, "notes._id": req.params.id}, {
+        $set:{
+            "notes.$.title": note.title,
+            "notes.$.text": note.text
+        }
+    })
+    if(result.modifiedCount>0 || result.matchedCount==1) return res.send('updated successfully')
+    return res.status(404).send('note not available')
     // const user=await User.findOne({_id: req.user._id})
     // if(!user) return res.status(404).send("invalid user.")
 
@@ -52,7 +50,7 @@ router.put('/edit/:id', auth, async (req, res)=>{
     // await user.save();
 })
 
-router.delete('/delete/:id', auth, async (req, res)=>{
+router.delete('/delete/:id', [auth, validateId], async (req, res)=>{
     try{        // to handle invalid ids . so that server does not crash
         const result=await User.updateOne({_id: req.user._id}, {
             $pull:{

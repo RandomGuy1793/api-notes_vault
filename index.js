@@ -1,19 +1,11 @@
 const express=require('express')
-const mongoose=require('mongoose')
-const {root}=require('./routes/root')
-const {register}=require('./routes/register')
-const {login}=require('./routes/login')
-const {notes}=require('./routes/notes')
+const config=require('config')
 const app=express()
-app.use(express.json())
-app.use('/', root);
-app.use('/api/register', register);
-app.use('/api/login', login)
-app.use('/api/notes', notes)
 
-mongoose.connect('mongodb://localhost:27017/notes_vault')
-.then(()=> console.log('connected to mongoDB'))
-.catch(()=>console.log('error connecting to mongoDB'))
+require('./startup/errorLog')()
+require('./startup/config')()
+require('./startup/routes')(app)
+require('./startup/db')()
 
-const PORT=process.env.notes_vault_port || 4000
+const PORT=config.get('PORT')
 app.listen(PORT, ()=>console.log(`Server active on port ${PORT}`))

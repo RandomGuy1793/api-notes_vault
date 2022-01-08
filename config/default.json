@@ -1,5 +1,4 @@
 {
     "jwtKey": "",
-    "PORT": "",
     "mongoDb": ""
 }

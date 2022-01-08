@@ -1,4 +1,5 @@
 {
     "jwtKey": "notes_vault_jwtKey",
-    "PORT": "notes_vault_port"
+    "PORT": "notes_vault_port",
+    "mongoDb": "notes_vault_mongoDb"
 }

@@ -1,5 +1,5 @@
 {
     "jwtKey": "",
     "PORT": "",
-    "mongoDb": "mongodb://localhost:27017/notes_vault"
+    "mongoDb": ""
 }

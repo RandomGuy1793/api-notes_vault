@@ -1,5 +1,4 @@
 const express=require('express')
-const _=require('lodash')
 const Joi=require('joi')
 const bcrypt=require('bcrypt')
 const {User}=require('../model/user')
